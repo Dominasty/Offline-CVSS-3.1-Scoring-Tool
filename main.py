@@ -8,18 +8,25 @@ class MainWindow(QMainWindow):
 
         # Central Widget 
         central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
+        self.setCentralWidget(central_widget
+    
         # Layout
         layout = QVBoxLayout()
         central_widget.setLayout(layout)
 
-        # UI Element (a simple label)
+        # UI Elements
         label = QLabel("Hello, CVSS Tool!")
-        layout.addWidget(label)
+        layout.addWidget(label) 
+
+        attack_vector = QComboBox()
+        attack_vector.addItem("Network")
+        attack_vector.addItem("Adjacent")
+        attack_vector.addItem("Local")
+        attack_vector.addItem("Physical")
+        layout.addWidget(attack_vector) 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_()) 
+    sys.exit(app.exec_())
