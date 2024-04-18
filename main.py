@@ -5,12 +5,12 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Offline CVSS 3.1 Scoring Tool")
 
-        # Base Score Input Fields
-        #attack_vector = QComboBox()
-        #attack_vector.addItem("Network")
-        #attack_vector.addItem("Adjacent")
-        #attack_vector.addItem("Local")
-        #attack_vector.addItem("Physical")
+        Base Score Input Fields
+        attack_vector = QComboBox()
+        attack_vector.addItem("Network")
+        attack_vector.addItem("Adjacent")
+        attack_vector.addItem("Local")
+        attack_vector.addItem("Physical")
 
         #attack_complexity = QComboBox()
         #attack_complexity.addItem("Low")
