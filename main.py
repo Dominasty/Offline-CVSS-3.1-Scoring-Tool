@@ -89,7 +89,12 @@ class MainWindow(QMainWindow):
             
         return groupbox
 
+    def ensure_directory_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     def save_cvss_config(self, filename=None):
+        ensure_directory_exists("cvss_records")
         cvss_vector_string = ""
         for groupbox in [self.exploitability_widget, self.impact_widget]:
             for dropdown in groupbox.findChildren(QComboBox):
@@ -107,8 +112,9 @@ class MainWindow(QMainWindow):
         with open(filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(cvss_vector_string.split("/"))
-
+    
     def load_cvss_config(self):
+        ensure_directory_exists("cvss_records")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         dialog = QFileDialog()
@@ -136,14 +142,15 @@ class MainWindow(QMainWindow):
                         QMessageBox.warning(self, "Error", "Invalid CVSS configuration file.")
                 except FileNotFoundError:
                     QMessageBox.warning(self, "Error", "File not found.")
-
+    
     def save(self):
         if hasattr(self, "current_filename") and self.current_filename:
             self.save_cvss_config(self.current_filename)
         else:
             self.save_as()
-
+    
     def save_as(self):
+        ensure_directory_exists("cvss_records")
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         dialog = QFileDialog()
@@ -158,15 +165,6 @@ class MainWindow(QMainWindow):
                     filename += ".csv"
                 self.save_cvss_config(filename)
                 self.current_filename = filename
-
-    def create_dropdown(self, layout, label_text, options):
-        label = QLabel(label_text)
-        layout.addWidget(label)
-        dropdown = QComboBox()
-        dropdown.setFixedWidth(150)  
-        for code, text in options.items():
-            dropdown.addItem(text, code) 
-        layout.addWidget(dropdown)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
