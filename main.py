@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
             for dropdown in groupbox.findChildren(QComboBox):
                 cvss_vector_string += dropdown.currentData()
                 cvss_vector_string += "/"  # Add the slash separator
-
+    
         cvss_vector_string = cvss_vector_string[:-1]
         if filename is None:
             user = getpass.getuser()  # Get current username
@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
             now = datetime.datetime.now(datetime.timezone.utc).astimezone()
             formatted_time = now.strftime("%H:%M:%S")
             filename = f"cvss_records/VulnerabilityName_{now.strftime('%m-%d-%Y_%H-%M-%S')}_{initials}.csv"
-
+    
         with open(filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(cvss_vector_string.split("/"))
@@ -111,41 +111,53 @@ class MainWindow(QMainWindow):
     def load_cvss_config(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getOpenFileName(self, "Open CVSS Configuration", "cvss_records/", "CSV Files (*.csv)", options=options)
-        if filename:
-            try:
-                with open(filename, "r") as csvfile:
-                    reader = csv.reader(csvfile)
-                    cvss_values = next(reader)  
-
-                dropdowns = []
-                for groupbox in [self.exploitability_widget, self.impact_widget]:
-                    dropdowns.extend(groupbox.findChildren(QComboBox))
-
-                if len(cvss_values) == len(dropdowns):
-                    for value, dropdown in zip(cvss_values, dropdowns):
-                        index = dropdown.findData(value)
-                        if index >= 0:
-                            dropdown.setCurrentIndex(index)
-                else:
-                    QMessageBox.warning(self, "Error", "Invalid CVSS configuration file.")
-            except FileNotFoundError:
-                QMessageBox.warning(self, "Error", "File not found.")
-
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.ExistingFile)
+        dialog.setNameFilter("CSV Files (*.csv)")
+        dialog.setDirectory("cvss_records/")
+        if dialog.exec_():
+            filename = dialog.selectedFiles()[0]
+            if filename:
+                try:
+                    with open(filename, "r") as csvfile:
+                        reader = csv.reader(csvfile)
+                        cvss_values = next(reader)
+    
+                    dropdowns = []
+                    for groupbox in [self.exploitability_widget, self.impact_widget]:
+                        dropdowns.extend(groupbox.findChildren(QComboBox))
+    
+                    if len(cvss_values) == len(dropdowns):
+                        for value, dropdown in zip(cvss_values, dropdowns):
+                            index = dropdown.findData(value)
+                            if index >= 0:
+                                dropdown.setCurrentIndex(index)
+                    else:
+                        QMessageBox.warning(self, "Error", "Invalid CVSS configuration file.")
+                except FileNotFoundError:
+                    QMessageBox.warning(self, "Error", "File not found.")
 
     def save(self):
         if hasattr(self, "current_filename") and self.current_filename:
             self.save_cvss_config(self.current_filename)
         else:
             self.save_as()
-    
+
     def save_as(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getSaveFileName(self, "Save CVSS Configuration", "cvss_records/", "CSV Files (*.csv)", options=options)
-        if filename:
-            self.save_cvss_config(filename)
-            self.current_filename = filename
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setNameFilter("CSV Files (*.csv)")
+        dialog.setDirectory("cvss_records/")
+        if dialog.exec_():
+            filename = dialog.selectedFiles()[0]
+            if filename:
+                if not filename.endswith(".csv"):
+                    filename += ".csv"
+                self.save_cvss_config(filename)
+                self.current_filename = filename
 
     def create_dropdown(self, layout, label_text, options):
         label = QLabel(label_text)
