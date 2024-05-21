@@ -90,8 +90,8 @@ class MainWindow(QMainWindow):
         return groupbox
 
     def ensure_directory_exists(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
     def save_cvss_config(self, filename=None):
         ensure_directory_exists("cvss_records")
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
             for dropdown in groupbox.findChildren(QComboBox):
                 cvss_vector_string += dropdown.currentData()
                 cvss_vector_string += "/"  # Add the slash separator
-    
+
         cvss_vector_string = cvss_vector_string[:-1]
         if filename is None:
             user = getpass.getuser()  # Get current username
@@ -108,11 +108,11 @@ class MainWindow(QMainWindow):
             now = datetime.datetime.now(datetime.timezone.utc).astimezone()
             formatted_time = now.strftime("%H:%M:%S")
             filename = f"cvss_records/VulnerabilityName_{now.strftime('%m-%d-%Y_%H-%M-%S')}_{initials}.csv"
-    
+
         with open(filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(cvss_vector_string.split("/"))
-    
+
     def load_cvss_config(self):
         ensure_directory_exists("cvss_records")
         options = QFileDialog.Options()
@@ -128,11 +128,11 @@ class MainWindow(QMainWindow):
                     with open(filename, "r") as csvfile:
                         reader = csv.reader(csvfile)
                         cvss_values = next(reader)
-    
+
                     dropdowns = []
                     for groupbox in [self.exploitability_widget, self.impact_widget]:
                         dropdowns.extend(groupbox.findChildren(QComboBox))
-    
+
                     if len(cvss_values) == len(dropdowns):
                         for value, dropdown in zip(cvss_values, dropdowns):
                             index = dropdown.findData(value)
@@ -142,13 +142,13 @@ class MainWindow(QMainWindow):
                         QMessageBox.warning(self, "Error", "Invalid CVSS configuration file.")
                 except FileNotFoundError:
                     QMessageBox.warning(self, "Error", "File not found.")
-    
+
     def save(self):
         if hasattr(self, "current_filename") and self.current_filename:
             self.save_cvss_config(self.current_filename)
         else:
             self.save_as()
-    
+
     def save_as(self):
         ensure_directory_exists("cvss_records")
         options = QFileDialog.Options()
